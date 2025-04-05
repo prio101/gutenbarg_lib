@@ -1,9 +1,8 @@
 import './style.css'
 
 import FetchAllBooks from './gutendex/fetchAllBooks';
-
 const appElement = document.querySelector('#app');
-
+const searchInput = document.querySelector('#search');
 const fetchAllBooks = new FetchAllBooks();
 let booksResult = await fetchAllBooks.getAllBooks();
 
@@ -31,3 +30,7 @@ if (booksResult.length > 0) {
   appElement.innerHTML = '<p>Loading...</p>';
 }
 
+searchInput.innerHTML = `
+  <input type="text" id="search-input" placeholder="Search by title..." />
+  <button id="search-button">Search</button>
+`;
