@@ -10,12 +10,14 @@ import { bookList } from './partials/bookList';
 import { searchBar } from './partials/searchBar';
 import { topicSelector } from './partials/topicSelector';
 import { bookDetailsPartial } from './partials/bookDetailsPartial';
+import { paginationPartial } from './partials/pagination';
 
 
 // Initialize the main app
 const appElement = document.querySelector('#app');
 const searchInput = document.querySelector('#search');
 const filterSection = document.querySelector('#filter');
+const pagination = document.querySelector('#pagination');
 
 
 const fetchAllBooks = new FetchAllBooks();
@@ -46,6 +48,7 @@ searchInputField.addEventListener('input', () => {
     if (searchTerm) {
       await searchBook.fetchBooksByTitle(searchTerm).then(data => {
         appElement.innerHTML = bookList(data.results);
+        addFunctionalities();
         if (data.results.length === 0) {
           appElement.innerHTML = '<p>No results found.</p>';
         }
@@ -67,6 +70,7 @@ topicFilter.addEventListener('change', async () => {
   if (selectedTopic) {
     await filterBooks.fetchBooksByTopic(selectedTopic).then(data => {
       appElement.innerHTML = bookList(data.results);
+      addFunctionalities();
       if (data.results.length === 0) {
         appElement.innerHTML = '<p>No results found.</p>';
       }
@@ -75,54 +79,58 @@ topicFilter.addEventListener('change', async () => {
 });
 
 
-// wishlist and save to local storage as wishlisted array
-const wishList = document.querySelectorAll('#wishlist');
-const wishListArray = JSON.parse(localStorage.getItem('wishList')) || [];
+export const wishListFunctionality = () => {
+  // wishlist and save to local storage as wishlisted array
+  const wishList = document.querySelectorAll('#wishlist');
+  const wishListArray = JSON.parse(localStorage.getItem('wishList')) || [];
 
-wishList.forEach((wishListItem, index) => {
-  wishListItem.addEventListener('click', () => {
-    const bookId = wishListItem.dataset.bookid;
+  wishList.forEach((wishListItem, index) => {
+    wishListItem.addEventListener('click', () => {
+      const bookId = wishListItem.dataset.bookid;
 
-    if (wishListArray.includes(parseInt(bookId))) {
-      alert(`Book is already in your wish list.`);
-    } else {
-      wishListArray.push(bookId);
-      localStorage.setItem('wishList', JSON.stringify(wishListArray));
-      alert(`Book has been added to your wish list.`);
-    }
+      if (wishListArray.includes(parseInt(bookId))) {
+        alert(`Book is already in your wish list.`);
+      } else {
+        wishListArray.push(bookId);
+        localStorage.setItem('wishList', JSON.stringify(wishListArray));
+        alert(`Book has been added to your wish list.`);
+      }
+    });
   });
-});
+}
 
+export const showBookDetailsFunctionality = () => {
+  // show book details
+  const showBookButtons = document.querySelectorAll('#show');
 
-// show book details
-const showBookButtons = document.querySelectorAll('#show');
+  showBookButtons.forEach((showBookButton, index) => {
+    showBookButton.addEventListener('click', async () => {
+      const bookId = showBookButton.dataset.bookid;
+      console.log(`Show book details for ID: ${bookId}`);
 
-showBookButtons.forEach((showBookButton, index) => {
-  showBookButton.addEventListener('click', async () => {
-    const bookId = showBookButton.dataset.bookid;
-    console.log(`Show book details for ID: ${bookId}`);
+      const bookDetails = await fetchBook.fetchBookById(bookId);
 
-    const bookDetails = await fetchBook.fetchBookById(bookId);
-
-    if (bookDetails) {
-      appElement.innerHTML = bookDetailsPartial(bookDetails);
-    }
-    else {
-      appElement.innerHTML = '<p>Book not found.</p>';
-    }
-  console.log(`Book details for ID ${bookId}:`, bookDetails);
+      if (bookDetails) {
+        appElement.innerHTML = bookDetailsPartial(bookDetails);
+      }
+      else {
+        appElement.innerHTML = '<p>Book not found.</p>';
+      }
+    console.log(`Book details for ID ${bookId}:`, bookDetails);
+    });
   });
-});
+}
+
+export const addFunctionalities = () => {
+  // Call the function to attach event listeners for show book buttons and wishlist buttons
+  wishListFunctionality();
+  showBookDetailsFunctionality();
+}
+addFunctionalities();
+
 
 // pagination
-const pagination = document.querySelector('#pagination');
-
-pagination.innerHTML = `
-  <button id="prev-page">Previous</button>
-  <span id="current-page">1</span> / ${Math.ceil(booksResult.length / 5)}
-  <button id="next-page">Next</button>
-`;
-
+pagination.innerHTML = paginationPartial(booksResult);
 
 const prevPageButton = document.querySelector('#prev-page');
 const nextPageButton = document.querySelector('#next-page');
@@ -139,38 +147,7 @@ const renderPage = (page) => {
   appElement.innerHTML = bookList(booksResult.slice(startIndex, endIndex));
 
   // Re-attach event listeners for wishlist buttons
-  const wishList = document.querySelectorAll('#wishlist');
-  wishList.forEach((wishListItem) => {
-    wishListItem.addEventListener('click', () => {
-      const bookId = wishListItem.dataset.bookid;
-
-      if (wishListArray.includes(parseInt(bookId))) {
-        alert(`Book is already in your wish list.`);
-      } else {
-        wishListArray.push(bookId);
-        localStorage.setItem('wishList', JSON.stringify(wishListArray));
-        alert(`Book has been added to your wish list.`);
-      }
-    });
-  });
-
-  // Re-attach event listeners for show book buttons
-  const showBookButtons = document.querySelectorAll('#show');
-  showBookButtons.forEach((showBookButton) => {
-    showBookButton.addEventListener('click', async () => {
-      const bookId = showBookButton.dataset.bookid;
-      console.log(`Show book details for ID: ${bookId}`);
-
-      const bookDetails = await fetchBook.fetchBookById(bookId);
-
-      if (bookDetails) {
-        appElement.innerHTML = bookDetailsPartial(bookDetails);
-      } else {
-        appElement.innerHTML = '<p>Book not found.</p>';
-      }
-      console.log(`Book details for ID ${bookId}:`, bookDetails);
-    });
-  });
+  addFunctionalities();
 };
 prevPageButton.addEventListener('click', () => {
   if (currentPage > 1) {
