@@ -3,6 +3,7 @@ import './style.css'
 import FetchAllBooks from './gutendex/fetchAllBooks';
 import SearchBook from './gutendex/searchBook';
 import FilterBooks from './gutendex/filterBooks';
+import FetchBook from './gutendex/fetchBook';
 
 const appElement = document.querySelector('#app');
 const searchInput = document.querySelector('#search');
@@ -12,6 +13,7 @@ const filterSection = document.querySelector('#filter');
 const fetchAllBooks = new FetchAllBooks();
 const searchBook = new SearchBook();
 const filterBooks = new FilterBooks();
+
 
 // user defined settings
 let searchTimeout;
@@ -34,7 +36,7 @@ if (booksResult.length > 0) {
         <p>ID: ${book.id}</p>
       </div>
 
-      <a>WishList</a>
+      <a id="wishlist" class="wish-list">WishList</a>
     </div>
   `).join('');
 } else {
@@ -73,7 +75,7 @@ searchInputField.addEventListener('input', () => {
               <p>ID: ${book.id}</p>
             </div>
 
-            <a>WishList</a>
+            <a id="wishlist" class="wish-list">WishList</a>
           </div>
         `).join('');
         if (data.results.length === 0) {
@@ -121,7 +123,7 @@ topicFilter.addEventListener('change', async () => {
             <p>ID: ${book.id}</p>
           </div>
 
-          <a>WishList</a>
+          <a id="wishlist" class="wish-list">WishList</a>
         </div>
       `).join('');
       if (data.results.length === 0) {
@@ -130,3 +132,24 @@ topicFilter.addEventListener('change', async () => {
     });
   }
 });
+
+
+// wishlist and save to local storage as wishlisted array
+const wishList = document.querySelectorAll('#wishlist');
+const wishListArray = JSON.parse(localStorage.getItem('wishList')) || [];
+
+wishList.forEach((wishListItem, index) => {
+  wishListItem.addEventListener('click', () => {
+    const bookId = booksResult[index].id;
+    const bookTitle = booksResult[index].title;
+
+    if (wishListArray.includes(bookId)) {
+      alert(`${bookTitle} is already in your wish list.`);
+    } else {
+      wishListArray.push(bookId);
+      localStorage.setItem('wishList', JSON.stringify(wishListArray));
+      alert(`${bookTitle} has been added to your wish list.`);
+    }
+  });
+});
+

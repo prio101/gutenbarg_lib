@@ -35,6 +35,48 @@ h1 {
   line-height: 1.1;
 }
 
+h2 {
+  font-size: 2.4em;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: #ffffff 1px solid;
+}
+
+th {
+  padding: 0.5em;
+  text-align: left;
+  font-weight: 500;
+  color: #ffffff;
+}
+th:first-child {
+  width: 1%;
+  white-space: nowrap;
+}
+th:last-child {
+  width: 1%;
+  white-space: nowrap;
+}
+
+tr {
+  border-bottom: #ffffff 1px solid;
+}
+
+td {
+  padding: 0.5em;
+  text-align: left;
+  font-weight: 400;
+  color: #ffffff;
+}
+
+
+
+
+
 #app {
   max-width: 1280px;
   margin: 0 auto;
@@ -95,11 +137,38 @@ button:focus-visible {
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
 .flex-column {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.wish-list {
+  border: #535bf2 1px solid;
+  border-radius: 8px;
+  padding: 1em;
+  margin: 1em;
+  background-color: #f9f9f9;
+  color: #000000;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.25s;
+  cursor: pointer;
 }
 
 @media (prefers-color-scheme: light) {
