@@ -1,3 +1,9 @@
+const wishlistArray = JSON.parse(localStorage.getItem('wishList')) || [];
+
+const isBookInWishlist = (bookId) => {
+  const wishlist = wishlistArray;
+  return wishlist.includes(bookId);
+};
 export const bookList = (books) => {
   if (!books || books.length === 0) {
     return '<p>No books found</p>';
@@ -19,7 +25,8 @@ export const bookList = (books) => {
         <p>ID: ${book.id}</p>
       </div>
 
-      <a id="wishlist" class="wish-list" data-bookid=${book.id}>WishList</a>
+      <a id="wishlist" class="wish-list ${isBookInWishlist(parseInt(book.id)) ? 'wishlisted' : ''}"
+                       data-bookid=${book.id}>${isBookInWishlist(parseInt(book.id)) ? 'Wishlisted' : 'Wishlist'}</a>
       <a id="show" class="show-book" data-bookid=${book.id}>Show Book</a>
     </div>
   `
