@@ -5,6 +5,14 @@ import SearchBook from './gutendex/searchBook';
 import FilterBooks from './gutendex/filterBooks';
 import FetchBook from './gutendex/fetchBook';
 
+// parials:
+import { bookList } from './partials/bookList';
+import { searchBar } from './partials/searchBar';
+import { topicSelector } from './partials/topicSelector';
+import { bookDetailsPartial } from './partials/bookDetailsPartial';
+
+
+// Initialize the main app
 const appElement = document.querySelector('#app');
 const searchInput = document.querySelector('#search');
 const filterSection = document.querySelector('#filter');
@@ -21,36 +29,12 @@ let searchTimeout;
 
 let booksResult = await fetchAllBooks.getAllBooks();
 if (booksResult.length > 0) {
-  appElement.innerHTML = booksResult.map(book => `
-    <h2 id="total-book-result"></h2>
-    <div class="card">
-      <h2>${book.title}</h2>
-
-      <div class="image-container">
-        <img src="${book.formats['image/jpeg']}" alt="${book.title}" />
-      </div>
-      <div class="author-container">
-        <p>Authors: ${book.authors.map(author => author.name).join(', ')}</p>
-      </div>
-
-      <div class="id">
-        <p>ID: ${book.id}</p>
-      </div>
-
-      <a id="wishlist" class="wish-list" data-bookid=${book.id}>WishList</a>
-      <a id="show" class="show-book" data-bookid=${book.id}>Show Book</a>
-    </div>
-  `).join('');
+  appElement.innerHTML = bookList(booksResult);
 } else {
   appElement.innerHTML = '<p>Loading...</p>';
 }
 
-searchInput.innerHTML = `
-  <input type="text"
-         id="search-input"
-         placeholder="Search by title..."
-         class="search-bar" />
-`;
+searchInput.innerHTML = searchBar();
 
 
 const searchInputField = document.querySelector('#search-input');
@@ -61,26 +45,7 @@ searchInputField.addEventListener('input', () => {
     const searchTerm = searchInputField.value;
     if (searchTerm) {
       await searchBook.fetchBooksByTitle(searchTerm).then(data => {
-        appElement.innerHTML = data.results.map(book => `
-          <div class="card">
-
-            <h2>${book.title}</h2>
-
-            <div class="image-container">
-              <img src="${book.formats['image/jpeg']}" alt="${book.title}" />
-            </div>
-            <div class="author-container">
-              <p>Authors: ${book.authors.map(author => author.name).join(', ')}</p>
-            </div>
-
-            <div class="id">
-              <p>ID: ${book.id}</p>
-            </div>
-
-            <a id="wishlist" class="wish-list" data-bookid=${book.id}>WishList</a>
-            <a id="show" class="show-book" data-bookid=${book.id}>Show Book</a>
-          </div>
-        `).join('');
+        appElement.innerHTML = bookList(data.results);
         if (data.results.length === 0) {
           appElement.innerHTML = '<p>No results found.</p>';
         }
@@ -90,16 +55,7 @@ searchInputField.addEventListener('input', () => {
 });
 
 
-filterSection.innerHTML = `
-  <h2>Filter by Topic</h2>
-  <select id="topic-filter">
-    <option value="">Select a topic</option>
-    <option value="science">Science</option>
-    <option value="history">History</option>
-    <option value="fiction">Fiction</option>
-    <option value="biography">Biography</option>
-  </select>
-`;
+filterSection.innerHTML = topicSelector();
 
 const topicFilter = document.querySelector('#topic-filter');
 
@@ -110,26 +66,7 @@ topicFilter.addEventListener('change', async () => {
 
   if (selectedTopic) {
     await filterBooks.fetchBooksByTopic(selectedTopic).then(data => {
-      appElement.innerHTML = data.results.map(book => `
-        <div class="card">
-
-          <h2>${book.title}</h2>
-
-          <div class="image-container">
-            <img src="${book.formats['image/jpeg']}" alt="${book.title}" />
-          </div>
-          <div class="author-container">
-            <p>Authors: ${book.authors.map(author => author.name).join(', ')}</p>
-          </div>
-
-          <div class="id">
-            <p>ID: ${book.id}</p>
-          </div>
-
-          <a id="wishlist" class="wish-list" data-bookid=${book.id}>WishList</a>
-          <a id="show" class="show-book" data-bookid=${book.id}>Show Book</a>
-        </div>
-      `).join('');
+      appElement.innerHTML = bookList(data.results);
       if (data.results.length === 0) {
         appElement.innerHTML = '<p>No results found.</p>';
       }
@@ -168,21 +105,7 @@ showBookButtons.forEach((showBookButton, index) => {
     const bookDetails = await fetchBook.fetchBookById(bookId);
 
     if (bookDetails) {
-      appElement.innerHTML = `
-        <div class="book-details">
-          <h2>${bookDetails.title}</h2>
-          <div class="image-container">
-            <img src="${bookDetails.formats['image/jpeg']}" alt="${bookDetails.title}" />
-          </div>
-          <div class="author-container">
-            <p>Authors: ${bookDetails.authors.map(author => author.name).join(', ')}</p>
-          </div>
-          <div class="description">
-            <p>${bookDetails.description || 'No description available.'}</p>
-          </div>
-
-        </div>
-      `;
+      appElement.innerHTML = bookDetailsPartial(bookDetails);
     }
     else {
       appElement.innerHTML = '<p>Book not found.</p>';
@@ -213,26 +136,7 @@ const renderPage = (page) => {
   const startIndex = (page - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
 
-  appElement.innerHTML = booksResult.slice(startIndex, endIndex).map(book => `
-    <h2 id="total-book-result"></h2>
-    <div class="card">
-      <h2>${book.title}</h2>
-
-      <div class="image-container">
-        <img src="${book.formats['image/jpeg']}" alt="${book.title}" />
-      </div>
-      <div class="author-container">
-        <p>Authors: ${book.authors.map(author => author.name).join(', ')}</p>
-      </div>
-
-      <div class="id">
-        <p>ID: ${book.id}</p>
-      </div>
-
-      <a id="wishlist" class="wish-list" data-bookid=${book.id}>WishList</a>
-      <a id="show" class="show-book" data-bookid=${book.id}>Show Book</a>
-    </div>
-  `).join('');
+  appElement.innerHTML = bookList(booksResult.slice(startIndex, endIndex));
 
   // Re-attach event listeners for wishlist buttons
   const wishList = document.querySelectorAll('#wishlist');
@@ -260,20 +164,7 @@ const renderPage = (page) => {
       const bookDetails = await fetchBook.fetchBookById(bookId);
 
       if (bookDetails) {
-        appElement.innerHTML = `
-          <div class="book-details">
-            <h2>${bookDetails.title}</h2>
-            <div class="image-container">
-              <img src="${bookDetails.formats['image/jpeg']}" alt="${bookDetails.title}" />
-            </div>
-            <div class="author-container">
-              <p>Authors: ${bookDetails.authors.map(author => author.name).join(', ')}</p>
-            </div>
-            <div class="description">
-              <p>${bookDetails.description || 'No description available.'}</p>
-            </div>
-          </div>
-        `;
+        appElement.innerHTML = bookDetailsPartial(bookDetails);
       } else {
         appElement.innerHTML = '<p>Book not found.</p>';
       }
