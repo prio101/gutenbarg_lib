@@ -1,14 +1,14 @@
 export default class FetchAllBooks {
   constructor() {
-    this.baseUrl = 'https://gutendex.com/books/';
+    this.baseUrl = 'https://gutendex.com/books';
     this.books = [];
   }
 
-  async fetchBooks(page = 1) {
-    const response = await fetch(`${this.baseUrl}?page=${page}`);
+  async fetchBooks() {
+    const response = await fetch(`${this.baseUrl}`);
     const data = await response.json();
     this.books.push(...data.results);
-    console.log(`Fetched page ${page}: ${data.results.length} books`);
+    console.log(`Fetched ${data.results.length} books`);
     return data;
   }
 

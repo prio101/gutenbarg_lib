@@ -182,3 +182,68 @@ bookDetails.forEach((bookDetail, index) => {
     }
   });
 });
+
+
+// pagination
+const pagination = document.querySelector('#pagination');
+
+pagination.innerHTML = `
+  <button id="prev-page">Previous</button>
+  <span id="current-page">1</span> / ${Math.ceil(booksResult.length / 5)}
+  <button id="next-page">Next</button>
+`;
+
+const totalPages = Math.ceil(booksResult.length / 5);
+
+
+
+
+
+pagination.innerHTML = `
+  <button id="prev-page">Previous</button>
+  <span id="current-page">1</span> / ${totalPages}
+  <button id="next-page">Next</button>
+`;
+const currentPage = document.querySelector('#current-page');
+const prevPageButton = document.querySelector('#prev-page');
+const nextPageButton = document.querySelector('#next-page');
+let currentPageNumber = 1;
+const updatePage = (page) => {
+  const start = (page - 1) * 5;
+  const end = start + 5;
+  appElement.innerHTML = booksResult.slice(start, end).map(book => `
+    <div class="card">
+
+      <h2>${book.title}</h2>
+
+      <div class="image-container">
+        <img src="${book.formats['image/jpeg']}" alt="${book.title}" />
+      </div>
+      <div class="author-container">
+        <p>Authors: ${book.authors.map(author => author.name).join(', ')}</p>
+      </div>
+
+      <div class="id">
+        <p>ID: ${book.id}</p>
+      </div>
+
+      <a id="wishlist" class="wish-list">WishList</a>
+      <a id="show" class="show-book">Show Book</a>
+    </div>
+  `).join('');
+  currentPage.textContent = page;
+};
+prevPageButton.addEventListener('click', () => {
+  if (currentPageNumber > 1) {
+    currentPageNumber--;
+    updatePage(currentPageNumber);
+  }
+});
+nextPageButton.addEventListener('click', () => {
+  if (currentPageNumber < totalPages) {
+    currentPageNumber++;
+    updatePage(currentPageNumber);
+  }
+});
+updatePage(currentPageNumber);
+// End of main.js
