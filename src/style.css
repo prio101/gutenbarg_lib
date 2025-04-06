@@ -201,10 +201,15 @@ button:focus-visible {
 }
 
 .wish-list {
-  border: #535bf2 1px solid;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: row;
+  width: 160px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  margin-bottom: 1%;
   padding: 1em;
-  margin: 1em;
+  border-radius: 8px;
   background-color: #f9f9f9;
   color: #000000;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
@@ -223,6 +228,22 @@ button:focus-visible {
   background-color: #f9f9f9;
   color: #000000;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.show-book {
+  display: flex;
+  flex-direction: row;
+  width: 160px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 1em;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  color: #000000;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.25s;
+  cursor: pointer;
 }
 
 @media (prefers-color-scheme: light) {

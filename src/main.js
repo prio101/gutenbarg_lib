@@ -13,6 +13,7 @@ const filterSection = document.querySelector('#filter');
 const fetchAllBooks = new FetchAllBooks();
 const searchBook = new SearchBook();
 const filterBooks = new FilterBooks();
+const fetchBook = new FetchBook();
 
 
 // user defined settings
@@ -36,8 +37,8 @@ if (booksResult.length > 0) {
         <p>ID: ${book.id}</p>
       </div>
 
-      <a id="wishlist" class="wish-list">WishList</a>
-      <a id="show" class="show-book">Show Book</a>
+      <a id="wishlist" class="wish-list" data-bookid=${book.id}>WishList</a>
+      <a id="show" class="show-book" data-bookid=${book.id}>Show Book</a>
     </div>
   `).join('');
 } else {
@@ -76,8 +77,8 @@ searchInputField.addEventListener('input', () => {
               <p>ID: ${book.id}</p>
             </div>
 
-            <a id="wishlist" class="wish-list">WishList</a>
-            <a id="show" class="show-book">Show Book</a>
+            <a id="wishlist" class="wish-list" data-bookid=${book.id}>WishList</a>
+            <a id="show" class="show-book" data-bookid=${book.id}>Show Book</a>
           </div>
         `).join('');
         if (data.results.length === 0) {
@@ -125,8 +126,8 @@ topicFilter.addEventListener('change', async () => {
             <p>ID: ${book.id}</p>
           </div>
 
-          <a id="wishlist" class="wish-list">WishList</a>
-          <a id="show" class="show-book">Show Book</a>
+          <a id="wishlist" class="wish-list" data-bookid=${book.id}>WishList</a>
+          <a id="show" class="show-book" data-bookid=${book.id}>Show Book</a>
         </div>
       `).join('');
       if (data.results.length === 0) {
@@ -143,46 +144,52 @@ const wishListArray = JSON.parse(localStorage.getItem('wishList')) || [];
 
 wishList.forEach((wishListItem, index) => {
   wishListItem.addEventListener('click', () => {
-    const bookId = booksResult[index].id;
-    const bookTitle = booksResult[index].title;
+    const bookId = wishListItem.dataset.bookid;
 
-    if (wishListArray.includes(bookId)) {
-      alert(`${bookTitle} is already in your wish list.`);
+    if (wishListArray.includes(parseInt(bookId))) {
+      alert(`Book is already in your wish list.`);
     } else {
       wishListArray.push(bookId);
       localStorage.setItem('wishList', JSON.stringify(wishListArray));
-      alert(`${bookTitle} has been added to your wish list.`);
+      alert(`Book has been added to your wish list.`);
     }
   });
 });
 
 
 // show book details
-const bookDetails = document.querySelectorAll('#show');
+const showBookButtons = document.querySelectorAll('#show');
 
-bookDetails.forEach((bookDetail, index) => {
-  bookDetail.addEventListener('click', async () => {
-    const bookId = booksResult[index].id;
-    const fetchBook = new FetchBook();
-    const book = await fetchBook.fetchBookById(bookId);
+showBookButtons.forEach((showBookButton, index) => {
+  showBookButton.addEventListener('click', async () => {
+    const bookId = showBookButton.dataset.bookid;
+    console.log(`Show book details for ID: ${bookId}`);
 
-    if (book) {
+    const bookDetails = await fetchBook.fetchBookById(bookId);
+
+    if (bookDetails) {
       appElement.innerHTML = `
-        <h2>${book.title}</h2>
-        <div class="image-container">
-          <img src="${book.formats['image/jpeg']}" alt="${book.title}" />
-        </div>
-        <div class="author-container">
-          <p>Authors: ${book.authors.map(author => author.name).join(', ')}</p>
-        </div>
-        <div class="id">
-          <p>ID: ${book.id}</p>
+        <div class="book-details">
+          <h2>${bookDetails.title}</h2>
+          <div class="image-container">
+            <img src="${bookDetails.formats['image/jpeg']}" alt="${bookDetails.title}" />
+          </div>
+          <div class="author-container">
+            <p>Authors: ${bookDetails.authors.map(author => author.name).join(', ')}</p>
+          </div>
+          <div class="description">
+            <p>${bookDetails.description || 'No description available.'}</p>
+          </div>
+
         </div>
       `;
     }
+    else {
+      appElement.innerHTML = '<p>Book not found.</p>';
+    }
+  console.log(`Book details for ID ${bookId}:`, bookDetails);
   });
 });
-
 
 // pagination
 const pagination = document.querySelector('#pagination');
@@ -193,27 +200,22 @@ pagination.innerHTML = `
   <button id="next-page">Next</button>
 `;
 
-const totalPages = Math.ceil(booksResult.length / 5);
 
-
-
-
-
-pagination.innerHTML = `
-  <button id="prev-page">Previous</button>
-  <span id="current-page">1</span> / ${totalPages}
-  <button id="next-page">Next</button>
-`;
-const currentPage = document.querySelector('#current-page');
 const prevPageButton = document.querySelector('#prev-page');
 const nextPageButton = document.querySelector('#next-page');
-let currentPageNumber = 1;
-const updatePage = (page) => {
-  const start = (page - 1) * 5;
-  const end = start + 5;
-  appElement.innerHTML = booksResult.slice(start, end).map(book => `
-    <div class="card">
 
+let currentPage = 1;
+
+const itemsPerPage = 5;
+const totalPages = Math.ceil(booksResult.length / itemsPerPage);
+
+const renderPage = (page) => {
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  appElement.innerHTML = booksResult.slice(startIndex, endIndex).map(book => `
+    <h2 id="total-book-result"></h2>
+    <div class="card">
       <h2>${book.title}</h2>
 
       <div class="image-container">
@@ -227,23 +229,69 @@ const updatePage = (page) => {
         <p>ID: ${book.id}</p>
       </div>
 
-      <a id="wishlist" class="wish-list">WishList</a>
-      <a id="show" class="show-book">Show Book</a>
+      <a id="wishlist" class="wish-list" data-bookid=${book.id}>WishList</a>
+      <a id="show" class="show-book" data-bookid=${book.id}>Show Book</a>
     </div>
   `).join('');
-  currentPage.textContent = page;
+
+  // Re-attach event listeners for wishlist buttons
+  const wishList = document.querySelectorAll('#wishlist');
+  wishList.forEach((wishListItem) => {
+    wishListItem.addEventListener('click', () => {
+      const bookId = wishListItem.dataset.bookid;
+
+      if (wishListArray.includes(parseInt(bookId))) {
+        alert(`Book is already in your wish list.`);
+      } else {
+        wishListArray.push(bookId);
+        localStorage.setItem('wishList', JSON.stringify(wishListArray));
+        alert(`Book has been added to your wish list.`);
+      }
+    });
+  });
+
+  // Re-attach event listeners for show book buttons
+  const showBookButtons = document.querySelectorAll('#show');
+  showBookButtons.forEach((showBookButton) => {
+    showBookButton.addEventListener('click', async () => {
+      const bookId = showBookButton.dataset.bookid;
+      console.log(`Show book details for ID: ${bookId}`);
+
+      const bookDetails = await fetchBook.fetchBookById(bookId);
+
+      if (bookDetails) {
+        appElement.innerHTML = `
+          <div class="book-details">
+            <h2>${bookDetails.title}</h2>
+            <div class="image-container">
+              <img src="${bookDetails.formats['image/jpeg']}" alt="${bookDetails.title}" />
+            </div>
+            <div class="author-container">
+              <p>Authors: ${bookDetails.authors.map(author => author.name).join(', ')}</p>
+            </div>
+            <div class="description">
+              <p>${bookDetails.description || 'No description available.'}</p>
+            </div>
+          </div>
+        `;
+      } else {
+        appElement.innerHTML = '<p>Book not found.</p>';
+      }
+      console.log(`Book details for ID ${bookId}:`, bookDetails);
+    });
+  });
 };
 prevPageButton.addEventListener('click', () => {
-  if (currentPageNumber > 1) {
-    currentPageNumber--;
-    updatePage(currentPageNumber);
+  if (currentPage > 1) {
+    currentPage--;
+    renderPage(currentPage);
+    document.querySelector('#current-page').textContent = currentPage;
   }
 });
 nextPageButton.addEventListener('click', () => {
-  if (currentPageNumber < totalPages) {
-    currentPageNumber++;
-    updatePage(currentPageNumber);
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderPage(currentPage);
+    document.querySelector('#current-page').textContent = currentPage;
   }
 });
-updatePage(currentPageNumber);
-// End of main.js
