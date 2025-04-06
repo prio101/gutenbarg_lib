@@ -73,7 +73,19 @@ td {
   color: #ffffff;
 }
 
-
+.back{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 1em;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  color: #000000;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.25s;
+  cursor: pointer;
+}
 
 
 

@@ -37,6 +37,7 @@ if (booksResult.length > 0) {
       </div>
 
       <a id="wishlist" class="wish-list">WishList</a>
+      <a id="show" class="show-book">Show Book</a>
     </div>
   `).join('');
 } else {
@@ -76,6 +77,7 @@ searchInputField.addEventListener('input', () => {
             </div>
 
             <a id="wishlist" class="wish-list">WishList</a>
+            <a id="show" class="show-book">Show Book</a>
           </div>
         `).join('');
         if (data.results.length === 0) {
@@ -124,6 +126,7 @@ topicFilter.addEventListener('change', async () => {
           </div>
 
           <a id="wishlist" class="wish-list">WishList</a>
+          <a id="show" class="show-book">Show Book</a>
         </div>
       `).join('');
       if (data.results.length === 0) {
@@ -153,3 +156,29 @@ wishList.forEach((wishListItem, index) => {
   });
 });
 
+
+// show book details
+const bookDetails = document.querySelectorAll('#show');
+
+bookDetails.forEach((bookDetail, index) => {
+  bookDetail.addEventListener('click', async () => {
+    const bookId = booksResult[index].id;
+    const fetchBook = new FetchBook();
+    const book = await fetchBook.fetchBookById(bookId);
+
+    if (book) {
+      appElement.innerHTML = `
+        <h2>${book.title}</h2>
+        <div class="image-container">
+          <img src="${book.formats['image/jpeg']}" alt="${book.title}" />
+        </div>
+        <div class="author-container">
+          <p>Authors: ${book.authors.map(author => author.name).join(', ')}</p>
+        </div>
+        <div class="id">
+          <p>ID: ${book.id}</p>
+        </div>
+      `;
+    }
+  });
+});
